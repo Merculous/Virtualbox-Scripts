@@ -1,0 +1,58 @@
+cd /c/Program\ Files/Oracle/VirtualBox
+
+iMac11,3 -> High Sierra
+iMac13,1 -> Catalina
+iMac18,3 -> Ventura
+
+./VBoxManage.exe modifyvm "Sierra" --cpuidset 00000001 000106e5 00100800 0098e3fd bfebfbff
+
+./VBoxManage.exe modifyvm "Ventura" --cpuidset 00000001 000306a9 04100800 7fbae3ff bfebfbff
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal/Devices/efi/0/Config/DmiSystemProduct" "iMac18,3"
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal/Devices/efi/0/Config/DmiSystemVersion" "1.0"
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal/Devices/efi/0/Config/DmiBoardProduct" "Iloveapple"
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal/Devices/smc/0/Config/DeviceKey" "ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc"
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC" 0
+./VBoxManage.exe setextradata "Ventura" "VBoxInternal2/EfiGraphicsResolution" 1600x900
+
+--cpuid <leaf> <eax> <ebx> <ecx> <edx>: Advanced users can use this setting before a teleporting operation, to restrict the virtual CPU capabilities 
+that Oracle VM VirtualBox presents to the guest operating system. This must be run on both the source and the target machines involved in the teleporting 
+and will then modify what the guest sees when it executes the CPUID machine instruction. This might help with misbehaving applications that wrongly assume 
+that certain CPU capabilities are present. The meaning of the parameters is hardware dependent, refer to the AMD or Intel processor documentation.
+
+From my server with Intel CPU's:
+
+% x86info -r
+x86info v1.31pre  Dave Jones 2001-2011
+Feedback to <davej@redhat.com>.
+
+Found 24 identical CPUs
+Extended Family: 0 Extended Model: 2 Family: 6 Model: 44 Stepping: 2
+Type: 0 (Original OEM)
+CPU Model (x86info's best guess): Core i7 (Nehalem) [Gulftown/Westmere-EP]
+Processor name string (BIOS programmed): Intel(R) Xeon(R) CPU           X5670  @ 2.93GHz
+
+eax in: 0x00000000, eax = 0000000b ebx = 756e6547 ecx = 6c65746e edx = 49656e69
+eax in: 0x00000001, eax = 000206c2 ebx = 20200800 ecx = 029ee3ff edx = bfebfbff <-- This is pretty much what we're looking for, however it may work with any one of these?
+eax in: 0x00000002, eax = 55035a01 ebx = 00f0b2ff ecx = 00000000 edx = 00ca0000	    As long as it "fakes" being an Intel CPU, any value should suffice?
+eax in: 0x00000003, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000     I'm guessing these are values that points to information via CPUID instruction.
+eax in: 0x00000004, eax = 3c004121 ebx = 01c0003f ecx = 0000003f edx = 00000000
+eax in: 0x00000005, eax = 00000040 ebx = 00000040 ecx = 00000003 edx = 00001120
+eax in: 0x00000006, eax = 00000007 ebx = 00000002 ecx = 00000009 edx = 00000000
+eax in: 0x00000007, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+eax in: 0x00000008, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+eax in: 0x00000009, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+eax in: 0x0000000a, eax = 07300403 ebx = 00000004 ecx = 00000000 edx = 00000603
+eax in: 0x0000000b, eax = 00000001 ebx = 00000002 ecx = 00000100 edx = 00000020
+
+eax in: 0x80000000, eax = 80000008 ebx = 00000000 ecx = 00000000 edx = 00000000
+eax in: 0x80000001, eax = 00000000 ebx = 00000000 ecx = 00000001 edx = 2c100800
+eax in: 0x80000002, eax = 65746e49 ebx = 2952286c ecx = 6f655820 edx = 2952286e
+eax in: 0x80000003, eax = 55504320 ebx = 20202020 ecx = 20202020 edx = 58202020
+eax in: 0x80000004, eax = 30373635 ebx = 20402020 ecx = 33392e32 edx = 007a4847
+eax in: 0x80000005, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+eax in: 0x80000006, eax = 00000000 ebx = 00000000 ecx = 01006040 edx = 00000000
+eax in: 0x80000007, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000100
+eax in: 0x80000008, eax = 00003028 ebx = 00000000 ecx = 00000000 edx = 00000000
+
+Total processor threads: 24
+This system has 2 six-core processors with hyper-threading (2 threads per core) running at an estimated 2.95GHz
