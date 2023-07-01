@@ -50,6 +50,8 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         '--firmware',
         'efi',
         '--vrde',
+        'on',
+        '--usbehci',
         'on'
     )
     manage(cmd)
@@ -253,6 +255,13 @@ def main() -> None:
 
     # TODO
     # Figure out UUID issue
+
+    # VBoxManage startvm <name> --type headless
+    # VBoxManage controlvm <name> acpipowerbutton
+    # VBoxManage controlvm <name> poweroff
+
+    # VBoxManage guestproperty enumerate <name>
+    # VBoxManage guestproperty get <name> "/VirtualBox/GuestInfo/Net/0/V4/IP" | awk '{ print $2 }'`
 
     if args.name and args.memory and args.cpu and args.size and args.root and args.image:
         go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0], args.image[0])
