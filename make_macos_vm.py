@@ -43,6 +43,8 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         cpu,
         '--nic1',
         'bridged',
+        '--bridgeadapter1',
+        'eno1',
         '--chipset',
         'ich9'
     )
@@ -94,26 +96,14 @@ def attachHDD(vm_name: str, hdd_path: str) -> None:
     manage(cmd)
 
 
-def createDVDController(vm_name: str) -> None:
-    cmd = (
-        'storagectl',
-        vm_name,
-        '--name',
-        'IDE Controller',
-        '--add',
-        'ide'
-    )
-    manage(cmd)
-
-
 def attachImageToOpticalDrive(vm_name: str, image: str) -> None:
     cmd = (
         'storageattach',
         vm_name,
         '--storagectl',
-        'IDE Controller',
+        'SATA Controller',
         '--port',
-        '0',
+        '1',
         '--device',
         '0',
         '--type',
@@ -129,9 +119,9 @@ def detachImageFromOpticalDrive(vm_name: str) -> None:
         'storageattach',
         vm_name,
         '--storagectl',
-        'IDE Controller',
+        'SATA Controller',
         '--port',
-        '0',
+        '1',
         '--device',
         '0',
         '--medium',
@@ -178,7 +168,7 @@ def enableBoot(vm_name: str) -> None:
             'setextradata',
             vm_name,
             'VBoxInternal/Devices/efi/0/Config/DmiSystemProduct',
-            'MacBookPro15,1'
+            'MacPro6,1'
         ),
         (
             'setextradata',
@@ -190,7 +180,7 @@ def enableBoot(vm_name: str) -> None:
             'setextradata',
             vm_name,
             'VBoxInternal/Devices/efi/0/Config/DmiBoardProduct',
-            'Mac-551B86E5744E2388'
+            'Iloveapple'
         ),
         (
             'setextradata',
@@ -231,7 +221,6 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) ->
     createHDDController(vm_name)
     attachHDD(vm_name, hdd_path)
 
-    createDVDController(vm_name)
     attachImageToOpticalDrive(vm_name, image)
 
     enableBoot(vm_name)
