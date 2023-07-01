@@ -42,7 +42,9 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         '--cpus',
         cpu,
         '--nic1',
-        'bridged'
+        'bridged',
+        '--chipset',
+        'ich9'
     )
     manage(cmd)
 
@@ -65,7 +67,7 @@ def createHDDController(vm_name: str) -> None:
         'storagectl',
         vm_name,
         '--name',
-        '"SATA Controller"',
+        'SATA Controller',
         '--add',
         'sata',
         '--controller',
@@ -79,7 +81,7 @@ def attachHDD(vm_name: str, hdd_path: str) -> None:
         'storageattach',
         vm_name,
         '--storagectl',
-        '"SATA Controller"',
+        'SATA Controller',
         '--device',
         '0',
         '--port',
@@ -97,9 +99,43 @@ def createDVDController(vm_name: str) -> None:
         'storagectl',
         vm_name,
         '--name',
-        '"IDE Controller"',
+        'IDE Controller',
         '--add',
         'ide'
+    )
+    manage(cmd)
+
+
+def attachImageToOpticalDrive(vm_name: str, image: str) -> None:
+    cmd = (
+        'storageattach',
+        vm_name,
+        '--storagectl',
+        'IDE Controller',
+        '--port',
+        '0',
+        '--device',
+        '0',
+        '--type',
+        'dvddrive',
+        '--medium',
+        image
+    )
+    manage(cmd)
+
+
+def detachImageFromOpticalDrive(vm_name: str) -> None:
+    cmd = (
+        'storageattach',
+        vm_name,
+        '--storagectl',
+        'IDE Controller',
+        '--port',
+        '0',
+        '--device',
+        '0',
+        '--medium',
+        'none'
     )
     manage(cmd)
 
@@ -123,7 +159,64 @@ def removeVM(vm_name: str) -> None:
     manage(cmd)
 
 
-def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
+# TODO
+# Allow enableBoot to accept other arguments
+
+def enableBoot(vm_name: str) -> None:
+    cmds = (
+        (
+            'modifyvm',
+            vm_name,
+            '--cpuidset',
+            '00000001',
+            '000306a9',
+            '04100800',
+            '7fbae3ff',
+            'bfebfbff'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/Devices/efi/0/Config/DmiSystemProduct',
+            'MacBookPro15,1'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/Devices/efi/0/Config/DmiSystemVersion',
+            '1.0'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/Devices/efi/0/Config/DmiBoardProduct',
+            'Mac-551B86E5744E2388'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/Devices/smc/0/Config/DeviceKey',
+            'ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/Devices/smc/0/Config/GetKeyFromRealSMC',
+            '0'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal2/EfiGraphicsResolution',
+            '1920x1080'
+        )
+    )
+
+    for cmd in cmds:
+        manage(cmd)
+
+
+def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) -> None:
     hdd_path = f'{root}/{vm_name}/{vm_name}.vdi'
 
     createVM(vm_name)
@@ -139,25 +232,37 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
     attachHDD(vm_name, hdd_path)
 
     createDVDController(vm_name)
+    attachImageToOpticalDrive(vm_name, image)
+
+    enableBoot(vm_name)
 
 
 def main() -> None:
     parser = ArgumentParser()
 
-    parser.add_argument('--name', nargs=1, type=str)
-    parser.add_argument('--memory', nargs=1, type=str)
-    parser.add_argument('--cpu', nargs=1, type=str)
-    parser.add_argument('--size', nargs=1, type=str)
-    parser.add_argument('--root', nargs=1, type=str)
-    parser.add_argument('--remove', action='store_true')
+    parser.add_argument('--name', nargs=1, type=str, help='VM Name', metavar='')
+    parser.add_argument('--memory', nargs=1, type=str, help='RAM Size', metavar='MB')
+    parser.add_argument('--cpu', nargs=1, type=str, help='# of CPU/Processors', metavar='#')
+    parser.add_argument('--size', nargs=1, type=str, help='Size of HDD', metavar='MB')
+    parser.add_argument('--root', nargs=1, type=str, help='Virtualbox root path', metavar='')
+    parser.add_argument('--image', nargs=1, type=str, help='Image to boot from', metavar='ISO/DMG')
+    parser.add_argument('--remove', action='store_true', help='Remove VM')
+    parser.add_argument('--attach', action='store_true', help='Attach image to DVD Drive')
+    parser.add_argument('--detach', action='store_true', help='Detach image from DVD Drive')
 
     args = parser.parse_args()
 
-    if args.name and args.memory and args.cpu and args.size and args.root:
-        go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0])
+    if args.name and args.memory and args.cpu and args.size and args.root and args.image:
+        go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0], args.image[0])
 
     elif args.name and args.remove:
         removeVM(args.name[0])
+
+    elif args.name and args.attach and args.image:
+        attachImageToOpticalDrive(args.name[0], args.image[0])
+
+    elif args.name and args.detach:
+        detachImageFromOpticalDrive(args.name[0])
 
     else:
         parser.print_help()
