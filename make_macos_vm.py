@@ -152,7 +152,9 @@ def removeVM(vm_name: str) -> None:
 
 
 # TODO
-# Allow enableBoot to accept other arguments
+# Allow enableBoot to accept other arguments, most important is cpuidset.
+
+# https://dortania.github.io/OpenCore-Install-Guide/extras/smbios-support.html
 
 def enableBoot(vm_name: str) -> None:
     cmds = (
@@ -161,16 +163,16 @@ def enableBoot(vm_name: str) -> None:
             vm_name,
             '--cpuidset',
             '00000001',
-            '000306a9',
-            '04100800',
-            '7fbae3ff',
+            '000106e5',
+            '00100800',
+            '0098e3fd',
             'bfebfbff'
         ),
         (
             'setextradata',
             vm_name,
             'VBoxInternal/Devices/efi/0/Config/DmiSystemProduct',
-            'MacPro6,1'
+            'iMac14,3'
         ),
         (
             'setextradata',
@@ -182,7 +184,7 @@ def enableBoot(vm_name: str) -> None:
             'setextradata',
             vm_name,
             'VBoxInternal/Devices/efi/0/Config/DmiBoardProduct',
-            'Iloveapple'
+            'Mac-77EB7D7DAF985301'
         ),
         (
             'setextradata',
@@ -225,7 +227,7 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) ->
 
     attachImageToOpticalDrive(vm_name, image)
 
-    # enableBoot(vm_name)
+    enableBoot(vm_name)
 
 
 def main() -> None:
@@ -242,6 +244,13 @@ def main() -> None:
     parser.add_argument('--detach', action='store_true', help='Detach image from DVD Drive')
 
     args = parser.parse_args()
+
+    # For linux users, using "readlink -f <file>" will give you the absolute path for a file.
+    # This is helpful when debugging, especially with VSCode.
+    # This is best if you need to get the path of an ISO/DMG if it's not in the same directory.
+
+    # TODO
+    # Figure out UUID issue
 
     if args.name and args.memory and args.cpu and args.size and args.root and args.image:
         go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0], args.image[0])
