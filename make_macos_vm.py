@@ -46,7 +46,9 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         '--bridgeadapter1',
         'eno1',
         '--chipset',
-        'ich9'
+        'ich9',
+        '--firmware',
+        'efi'
     )
     manage(cmd)
 
@@ -223,7 +225,7 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) ->
 
     attachImageToOpticalDrive(vm_name, image)
 
-    enableBoot(vm_name)
+    # enableBoot(vm_name)
 
 
 def main() -> None:
