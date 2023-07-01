@@ -48,7 +48,9 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         '--chipset',
         'ich9',
         '--firmware',
-        'efi'
+        'efi',
+        '--vrde',
+        'on'
     )
     manage(cmd)
 
