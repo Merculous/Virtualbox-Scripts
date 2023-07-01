@@ -55,6 +55,8 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         'on',
         '--mouse',
         'usbtablet',
+        '--keyboard',
+        'usb',
         '--defaultfrontend',
         'separate'
     )
