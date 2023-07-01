@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 
+import shutil
 import subprocess
 from argparse import ArgumentParser
+from typing import Sequence
 
-def manage(args):
+VBoxMange_path = shutil.which('VBoxManage')
+
+if not VBoxMange_path:
+    raise FileNotFoundError
+
+
+def manage(args: Sequence) -> None:
     cmd = [
-        "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+        VBoxMange_path
     ]
     cmd.extend(args)
     subprocess.run(cmd)
 
 
-def createVM(vm_name):
+def createVM(vm_name: str) -> None:
     cmd = (
         'createvm',
         '--name',
@@ -23,7 +31,7 @@ def createVM(vm_name):
     manage(cmd)
 
 
-def addSettings(vm_name, memory, cpu):
+def addSettings(vm_name: str, memory: str, cpu: str) -> None:
     cmd = (
         'modifyvm',
         vm_name,
@@ -39,7 +47,7 @@ def addSettings(vm_name, memory, cpu):
     manage(cmd)
 
 
-def createHDD(hdd_path, size):
+def createHDD(hdd_path: str, size: str) -> None:
     cmd = (
         'createmedium',
         '--filename',
@@ -52,7 +60,7 @@ def createHDD(hdd_path, size):
     manage(cmd)
 
 
-def createHDDController(vm_name):
+def createHDDController(vm_name: str) -> None:
     cmd = (
         'storagectl',
         vm_name,
@@ -66,7 +74,7 @@ def createHDDController(vm_name):
     manage(cmd)
 
 
-def attachHDD(vm_name, hdd_path):
+def attachHDD(vm_name: str, hdd_path: str) -> None:
     cmd = (
         'storageattach',
         vm_name,
@@ -84,7 +92,7 @@ def attachHDD(vm_name, hdd_path):
     manage(cmd)
 
 
-def createDVDController(vm_name):
+def createDVDController(vm_name: str) -> None:
     cmd = (
         'storagectl',
         vm_name,
@@ -96,7 +104,7 @@ def createDVDController(vm_name):
     manage(cmd)
 
 
-def removeHDD(hdd_path):
+def removeHDD(hdd_path: str) -> None:
     cmd = (
         'closemedium',
         'disk',
@@ -106,8 +114,17 @@ def removeHDD(hdd_path):
     manage(cmd)
 
 
-def go(vm_name, memory, cpu, size):
-    hdd_path = f"F:\VM Stuff\VM's\Virtualbox\{vm_name}\{vm_name}.vdi"
+def removeVM(vm_name: str) -> None:
+    cmd = (
+        'unregistervm',
+        vm_name,
+        '--delete'
+    )
+    manage(cmd)
+
+
+def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
+    hdd_path = f'{root}/{vm_name}/{vm_name}.vdi'
 
     createVM(vm_name)
     addSettings(vm_name, memory, cpu)
@@ -124,17 +141,26 @@ def go(vm_name, memory, cpu, size):
     createDVDController(vm_name)
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser()
 
-    parser.add_argument('--name', nargs=1, required=True)
-    parser.add_argument('--memory', nargs=1, required=True)
-    parser.add_argument('--cpu', nargs=1, required=True)
-    parser.add_argument('--size', nargs=1, required=True)
+    parser.add_argument('--name', nargs=1, type=str)
+    parser.add_argument('--memory', nargs=1, type=str)
+    parser.add_argument('--cpu', nargs=1, type=str)
+    parser.add_argument('--size', nargs=1, type=str)
+    parser.add_argument('--root', nargs=1, type=str)
+    parser.add_argument('--remove', action='store_true')
 
     args = parser.parse_args()
 
-    go(args.name[0], args.memory[0], args.cpu[0], args.size[0])
+    if args.name and args.memory and args.cpu and args.size and args.root:
+        go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0])
+
+    elif args.name and args.remove:
+        removeVM(args.name[0])
+
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':
