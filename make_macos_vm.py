@@ -54,7 +54,9 @@ def addSettings(vm_name: str, memory: str, cpu: str) -> None:
         '--usbehci',
         'on',
         '--mouse',
-        'usbtablet'
+        'usbtablet',
+        '--defaultfrontend',
+        'separate'
     )
     manage(cmd)
 
