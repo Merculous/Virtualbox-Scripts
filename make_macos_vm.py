@@ -5,15 +5,15 @@ import subprocess
 from argparse import ArgumentParser
 from typing import Sequence
 
-VBoxMange_path = shutil.which('VBoxManage')
+VBoxManage_path = shutil.which('VBoxManage')
 
-if not VBoxMange_path:
+if not VBoxManage_path:
     raise FileNotFoundError
 
 
 def manage(args: Sequence) -> None:
     cmd = [
-        VBoxMange_path
+        VBoxManage_path
     ]
     cmd.extend(args)
     subprocess.run(cmd)
