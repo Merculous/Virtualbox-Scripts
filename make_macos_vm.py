@@ -220,7 +220,7 @@ def enableBoot(vm_name: str) -> None:
         manage(cmd)
 
 
-def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) -> None:
+def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
     hdd_path = f'{root}/{vm_name}/{vm_name}.vdi'
 
     createVM(vm_name)
@@ -235,8 +235,6 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str, image: str) ->
     createHDDController(vm_name)
     attachHDD(vm_name, hdd_path)
 
-    attachImageToOpticalDrive(vm_name, image)
-
     enableBoot(vm_name)
 
 
@@ -247,7 +245,7 @@ def main() -> None:
     parser.add_argument('--memory', nargs=1, type=str, help='RAM Size', metavar='MB')
     parser.add_argument('--cpu', nargs=1, type=str, help='# of CPU/Processors', metavar='#')
     parser.add_argument('--size', nargs=1, type=str, help='Size of HDD', metavar='MB')
-    parser.add_argument('--root', nargs=1, type=str, help='Virtualbox root path', metavar='')
+    parser.add_argument('--root', nargs=1, type=str, help='Virtualbox VM root path', metavar='')
     parser.add_argument('--image', nargs=1, type=str, help='Image to boot from', metavar='ISO/DMG')
     parser.add_argument('--remove', action='store_true', help='Remove VM')
     parser.add_argument('--attach', action='store_true', help='Attach image to DVD Drive')
@@ -269,8 +267,8 @@ def main() -> None:
     # VBoxManage guestproperty enumerate <name>
     # VBoxManage guestproperty get <name> "/VirtualBox/GuestInfo/Net/0/V4/IP" | awk '{ print $2 }'`
 
-    if args.name and args.memory and args.cpu and args.size and args.root and args.image:
-        go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0], args.image[0])
+    if args.name and args.memory and args.cpu and args.size and args.root:
+        go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0])
 
     elif args.name and args.remove:
         removeVM(args.name[0])
