@@ -8,7 +8,7 @@ from typing import Sequence
 VBoxManage_path = shutil.which('VBoxManage')
 
 if not VBoxManage_path:
-    raise FileNotFoundError
+    raise FileNotFoundError('VBoxManage not found within $PATH!')
 
 
 def manage(args: Sequence) -> None:
