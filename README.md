@@ -1,11 +1,7 @@
 # make_macos_vm
 
-This was only tested enough on a Linux machine.
+Windows users <b>MUST</b> enclose anything after "--root" and or "--image" with
+double quotes.
 
-Windows was tested but the arguments dealing with paths are broken for now.
-I will fix this in a bit.
-
-MacOS should be almost the same as Linux so it should work in theory.
-
-As for the script itself, I need to figure out how to properly set the
-networking bit as that changes per device.
+To avoid confusion with "--root", this <b>MUST</b> be the same path used in
+the preferences window with the selectable list named <b>"Default Machine Folder."</b>

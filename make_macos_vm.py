@@ -3,6 +3,7 @@
 import shutil
 import subprocess
 from argparse import ArgumentParser
+from pathlib import Path
 from typing import Sequence
 
 VBoxManage_path = shutil.which('VBoxManage')
@@ -121,7 +122,7 @@ def attachImageToOpticalDrive(vm_name: str, image: str) -> None:
         '--type',
         'dvddrive',
         '--medium',
-        image
+        Path(image).as_posix()
     )
     manage(cmd)
 
@@ -221,7 +222,7 @@ def enableBoot(vm_name: str) -> None:
 
 
 def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
-    hdd_path = f'{root}/{vm_name}/{vm_name}.vdi'
+    hdd_path = Path(f'{root}/{vm_name}/{vm_name}.vdi').as_posix()
 
     createVM(vm_name)
     addSettings(vm_name, memory, cpu)
@@ -266,6 +267,12 @@ def main() -> None:
 
     # VBoxManage guestproperty enumerate <name>
     # VBoxManage guestproperty get <name> "/VirtualBox/GuestInfo/Net/0/V4/IP" | awk '{ print $2 }'`
+
+    # TODO
+    # Do something about networking
+
+    # TODO
+    # Proper removeHDD() incorporation to removeVM()
 
     if args.name and args.memory and args.cpu and args.size and args.root:
         go(args.name[0], args.memory[0], args.cpu[0], args.size[0], args.root[0])
