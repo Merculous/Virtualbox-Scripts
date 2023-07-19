@@ -284,6 +284,16 @@ def listVM(running: bool) -> None:
     manage(cmd)
 
 
+def installExtPack(path: str) -> None:
+    cmd = (
+        'extpack',
+        'install',
+        '--replace',
+        Path(path).as_posix()
+    )
+    manage(cmd)
+
+
 def main() -> None:
     parser = ArgumentParser()
 
@@ -301,6 +311,7 @@ def main() -> None:
     parser.add_argument('--force', action='store_true', help='Turn off VM forcefully')
     parser.add_argument('--list', action='store_true', help='List VM\'s')
     parser.add_argument('--running', action='store_true', help='Use with --list')
+    parser.add_argument('--ext', nargs=1, type=str, help='Install extension pack', metavar='path')
 
     args = parser.parse_args()
 
@@ -346,6 +357,9 @@ def main() -> None:
             listVM(False)
         else:
             listVM(True)
+
+    elif args.ext:
+        installExtPack(args.ext[0])
 
     else:
         parser.print_help()
