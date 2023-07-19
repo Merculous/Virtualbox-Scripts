@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 import shutil
@@ -239,6 +240,51 @@ def go(vm_name: str, memory: str, cpu: str, size: str, root: str) -> None:
     enableBoot(vm_name)
 
 
+def startVM(name: str) -> None:
+    cmd = (
+        'startvm',
+        name,
+        '--type',
+        'headless'
+    )
+    manage(cmd)
+
+
+def powerOffVM(name: str, force: bool) -> None:
+    cmd = [
+        'controlvm',
+        name
+    ]
+
+    if force is True:
+        cmd.append('poweroff')
+
+    elif force is False:
+        cmd.append('acpipowerbutton')
+
+    else:
+        raise Exception(f'force: {force} type: {type(force)}')
+
+    manage(cmd)
+
+
+def listVM(running: bool) -> None:
+    cmd = [
+        'list'
+    ]
+
+    if running is True:
+        cmd.append('runningvms')
+
+    elif running is False:
+        cmd.append('vms')
+
+    else:
+        raise Exception(f'running: {running} type: {type(running)}')
+
+    manage(cmd)
+
+
 def main() -> None:
     parser = ArgumentParser()
 
@@ -251,6 +297,11 @@ def main() -> None:
     parser.add_argument('--remove', action='store_true', help='Remove VM')
     parser.add_argument('--attach', action='store_true', help='Attach image to DVD Drive')
     parser.add_argument('--detach', action='store_true', help='Detach image from DVD Drive')
+    parser.add_argument('--on', action='store_true', help='Turn on VM')
+    parser.add_argument('--off', action='store_true', help='Turn off VM')
+    parser.add_argument('--force', action='store_true', help='Turn off VM forcefully')
+    parser.add_argument('--list', action='store_true', help='List VM\'s')
+    parser.add_argument('--running', action='store_true', help='Use with --list')
 
     args = parser.parse_args()
 
@@ -260,10 +311,6 @@ def main() -> None:
 
     # TODO
     # Figure out UUID issue
-
-    # VBoxManage startvm <name> --type headless
-    # VBoxManage controlvm <name> acpipowerbutton
-    # VBoxManage controlvm <name> poweroff
 
     # VBoxManage guestproperty enumerate <name>
     # VBoxManage guestproperty get <name> "/VirtualBox/GuestInfo/Net/0/V4/IP" | awk '{ print $2 }'`
@@ -285,6 +332,21 @@ def main() -> None:
 
     elif args.name and args.detach:
         detachImageFromOpticalDrive(args.name[0])
+
+    elif args.name and args.on:
+        startVM(args.name[0])
+
+    elif args.name and args.off:
+        if not args.force:
+            powerOffVM(args.name[0], False)
+        else:
+            powerOffVM(args.name[0], True)
+
+    elif args.list:
+        if not args.running:
+            listVM(False)
+        else:
+            listVM(True)
 
     else:
         parser.print_help()
