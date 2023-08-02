@@ -214,6 +214,12 @@ def enableBoot(vm_name: str) -> None:
             vm_name,
             'VBoxInternal2/EfiGraphicsResolution',
             '1920x1080'
+        ),
+        (
+            'setextradata',
+            vm_name,
+            'VBoxInternal/TM/TSCMode',
+            'RealTSCOffset'
         )
     )
 
